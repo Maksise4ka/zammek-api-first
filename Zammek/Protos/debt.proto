@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+import "Protos/google/type/money.proto";;
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Zammek.Bank.Proto.Credits";
+
+package zammek.debt;
+
+service DebtService {
+  // Купить долг. При вызове он переводиться в статус ReservedToSell
+  // Возвращает NotFound если долг не найден
+  // FailedPrecondition если пользователь не найден, либо у него недостаточно баланс, а также если долг не в статусе Open
+  rpc BuyDebt(BuyDebtRequest) returns (BuyDebtResponse);
+
+  // Получить информацию о долге по идентификатору
+  // Возвращает NotFound если долг не найден
+  rpc GetDebtById(GetDebtByIdRequest) returns (GetDebtByIdResponse);
+
+  // Получить список долгов с пагинацией и фильтрацией по опциональным аргументам
+  rpc GetDebtsPaged(GetDebtsPagedRequest) returns (GetDebtsPagedResponse);
+}
+
+message BuyDebtRequest {
+  int64 user_id = 1;
+  int64 debt_id = 2;
+}
+
+message BuyDebtResponse {
+}
+
+message GetDebtByIdRequest {
+  int64 debt_id = 1;
+}
+
+message GetDebtByIdResponse {
+}
+
+message GetDebtsPagedRequest {
+  optional DebtState State = 1;
+  google.protobuf.Int64Value acquirer_id = 2;
+
+  int64 limit = 3;
+  int64 offset = 4;
+}
+
+message GetDebtsPagedResponse {
+  repeated Debt debts = 1;
+  int64 total_count = 2;
+}
+
+message Debt {
+  int64 id = 1;
+  int64 credit_id = 2;
+  google.type.Money current_sum = 3;
+  double current_percent = 4;
+  google.protobuf.Int64Value acquirer_id = 5;
+  DebtState state = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+enum DebtState {
+  // Неизвестен
+  DEBT_STATE_UNDEFINED = 0;
+  // Долг открыт на продажу
+  DEBT_STATE_OPEN = 1;
+  // Долг зарезервирован на продажу
+  DEBTS_STATE_RESERVED_TO_SELL = 2;
+  // Долг продан
+  DEBT_STATE_SOLD = 3;
+}

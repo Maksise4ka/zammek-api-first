@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+import "Protos/google/type/money.proto";;
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Zammek.Bank.Proto.Credits";
+
+package zammek.credit;
+
+service CreditService {
+  // Создать кредит
+  // Возвращает NotFound, если пользователь не найден
+  // FailedPrecondition - баланс пользователя отрицательный либо у пользователя
+  // есть долги по кредитам
+  rpc CreateCredit(CreateCreditRequest) returns (CreateCreditResponse);
+
+  // Посчитать процент по кредиту
+  rpc CalculateCreditLoanRate(CalculateCreditLoanRateRequest) returns (CalculateCreditLoanRateResponse);
+
+  // Пополнить баланс пользователя с предварительной попыткой списания
+  // Задолженностей по существующим кредитам
+  // Возвращает итоговую сумму, на которую пополнился баланс 
+  // Возвращает NotFound, если пользователь не найден
+  // FailedPrecondition - переданный баланс отрицательный
+  rpc IncreaseBalance(IncreaseBalanceRequest) returns (IncreaseBalanceResponse);
+
+  // Списать средства с баланса пользователя
+  // Возвращает NotFound, если пользователь не найден
+  // FailedPrecondition - переданный баланс отрицательный либо недостаточно средств
+  rpc DecreaseBalance(DecreaseBalanceRequest) returns (DecreaseBalanceResponse);
+
+  // Получить кредит по идентификатору
+  // Возвращает NotFound, если кредит не найден
+  rpc GetCreditById(GetCreditByIdRequest) returns (GetCreditByIdResponse);
+
+  // Получить список кредитов пользователя с пагинцаией отсортированные по дате
+  rpc GetCreditsPaged(GetCreditsPagedRequest) returns (GetCreditsPagedResponse);
+
+  // Получить кредиты по идентификатору долгов
+  rpc GetCreditsByDebtIds(GetCreditsByDebtIdsRequest) returns (GetCreditsByDebtIdsResponse);
+}
+
+message CreateCreditRequest {
+  int64 user_id = 1;
+  // Сумма кредита
+  google.type.Money total_sum = 2;
+  // Длительность кредита
+  int32 duration_month = 3;
+}
+
+message CreateCreditResponse {
+}
+
+message CalculateCreditLoanRateRequest {
+  int64 user_id = 1;
+  // Сумма кредита
+  google.type.Money total_sum = 2;
+  // Длительность кредита
+  int32 duration_month = 3;
+}
+
+message CalculateCreditLoanRateResponse {
+  double loan_rate = 1;
+}
+
+message IncreaseBalanceRequest {
+  int64 user_id = 1;
+  google.type.Money amount = 2;
+}
+
+message IncreaseBalanceResponse {
+  google.type.Money final_amount = 1;
+}
+
+message DecreaseBalanceRequest {
+  int64 user_id = 1;
+  google.type.Money amount = 2;
+}
+
+message DecreaseBalanceResponse {
+}
+
+message GetCreditByIdRequest {
+  int64 credit_id = 1;
+}
+
+message GetCreditByIdResponse {
+  Credit credit = 1;
+}
+
+message GetCreditsPagedRequest {
+  int64 user_id = 1;
+  int64 limit = 2;
+  int64 offset = 3;
+}
+
+message GetCreditsPagedResponse {
+  repeated Credit credits = 1;
+  int64 total_count = 2;
+}
+
+message GetCreditsByDebtIdsRequest {
+  repeated int64 debt_ids = 1;
+}
+
+message GetCreditsByDebtIdsResponse {
+  repeated Credit credits = 1;
+}
+
+message Credit {
+  // Id кредита
+  int64 id = 1;
+  // Id пользователя, оформившего кредит
+  int64 debtor_id = 2;
+  // Статус кредита
+  CreditState state = 3;
+
+  // Сумма кредита
+  google.type.Money total_sum = 4;
+  // Ежемесячная процентная ставка
+  double loan_rate = 5;
+  // Длительность кредита
+  int32 duration_month = 6;
+
+  // Количество успешных платежей
+  int32 payment_count = 7;
+  // Погашенная сумма
+  google.type.Money repaid_sum = 8;
+
+  // Количество неуспешных платежей
+  int32 non_payment_count = 9;
+  // Непогашенная сумма
+  google.type.Money non_payment_sum = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+}
+
+enum CreditState {
+  CREDIT_STATE_UNDEFINED = 0;
+  // Кредит ожидает подтверждения
+  CREDIT_STATE_REQUESTED = 1;
+  // Кредит подтвержден и открыт
+  CREDIT_STATE_OPEN = 2;
+  // Кредит отклонен
+  CREDIT_STATE_REJECTED = 3;
+  // Кредит отправлен на продажу
+  CREDIT_STATE_SENT_TO_SELL = 4;
+  // Кредит продан
+  CREDIT_STATE_SOLD = 5;
+  // Кредит успешно погашен и закрыт
+  CREDIT_STATE_CLOSED = 6;
+}

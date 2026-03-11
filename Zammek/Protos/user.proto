@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+import "Protos/google/type/money.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Zammek.Bank.Proto.Users";
+
+package zammek.user;
+
+service UserService {
+  // Создать пользователя
+  // Возвращает FailedPrecondition если пользователь с заданным email существует
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // Получить пользователя по email
+  // Возвращает NotFound если пользователь не найден
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
+
+  // Получить пользователя по id
+  // Возвращает NotFound если пользователь не найден
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+
+  // Обновить пользователя
+  // Возвращает NotFound если пользователь не найден
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string surname = 2;
+  string email = 3;
+}
+
+message CreateUserResponse {
+  int64 id = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  User user = 1;
+}
+
+message GetUserByIdRequest {
+  int64  id = 1;
+}
+
+message GetUserByIdResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  int64 id = 1;
+
+  string name = 2;
+  string surname = 3;
+  google.protobuf.StringValue passport = 4;
+  google.protobuf.StringValue phone = 5;
+  google.protobuf.StringValue inn = 6;
+  google.protobuf.StringValue snils = 7;
+  UserRole role = 8;
+}
+
+message UpdateUserResponse {
+}
+
+message User {
+  int64 id = 1;
+  string name = 2;
+  string surname = 3;
+  string email = 4;
+  google.protobuf.StringValue passport = 5;
+  google.protobuf.StringValue inn = 6;
+  google.protobuf.StringValue snils = 7;
+  google.protobuf.StringValue phone = 8;
+
+  google.type.Money balance = 9;
+  UserRole role = 10;
+}
+
+enum UserRole {
+  USER_ROLE_UNDEFINED = 0;
+  USER_ROLE_DEBTOR = 1;
+  USER_ROLE_COLLECTOR = 2;
+}
