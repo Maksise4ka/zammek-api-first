@@ -18,3 +18,7 @@ API для микрокредитной организации, занимающ
 * [debt.proto](./Zammek/Protos/debt.proto) - API для сервиса долгов
 * [user.proto](./Zammek/Protos/user.proto) - API для сервиса управления пользователям
 * [money.proto](./Zammek/Protos/google/type/money.proto) - описание стандартного google protobuf типа для передачи денежных значений
+
+Как проверить работоспосность:
+1. Иметь установленным dotnet версии 10 и выше
+2. Запустить в корне dotnet build 
