@@ -22,3 +22,8 @@ API для микрокредитной организации, занимающ
 Как проверить работоспосность:
 1. Иметь установленным dotnet версии 10 и выше
 2. Запустить в корне dotnet build 
+
+## Артефакты
+ServerReflectionInfo:
+![image](docs/server_reflection_1.png)
+![image](docs/server_reflection_2.png)
