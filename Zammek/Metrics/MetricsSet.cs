@@ -15,9 +15,14 @@ public class MetricsSet(IMetricFactory metricFactory)
             }
         );
 
+    private readonly Gauge _currentLoan = metricFactory.CreateGauge("zammek_current_loan_percent", "Текущая ставка");
+
     public void OnIncreaseBalance(decimal amount)
         => _balanceChange.WithLabels("increase").Observe((double)amount);
 
     public void OnDecreaseBalance(decimal amount)
         => _balanceChange.WithLabels("decrease").Observe((double)amount);
+
+    public void SetLoanPercent(int value)
+        => _currentLoan.Set(value);
 }

@@ -1,4 +1,5 @@
 using Prometheus;
+using Zammek.Jobs;
 using Zammek.Metrics;
 using Zammek.Services;
 
@@ -11,6 +12,7 @@ builder.Services
     .AddSingleton<IMetricFactory>(Metrics.DefaultFactory)
     .AddSingleton<MetricsSet>();
 
+builder.Services.AddHostedService<LoanExporterJob>();
 
 var app = builder.Build();
 
