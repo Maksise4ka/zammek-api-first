@@ -9,6 +9,8 @@
     <ItemGroup>
         <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.43.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
+        <PackageReference Include="prometheus-net.AspNetCore.Grpc" Version="8.2.1" />
     </ItemGroup>
 
     <ItemGroup>

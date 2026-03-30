@@ -1,3 +1,4 @@
+using Prometheus;
 using Zammek.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,10 +8,13 @@ builder.Services.AddGrpcReflection();
 
 var app = builder.Build();
 
+app.UseGrpcMetrics();
 app.MapGrpcService<CreditGrpcService>();
 app.MapGrpcService<DebtGrpcService>();
 app.MapGrpcService<UserGrpcService>();
 app.MapGrpcReflectionService();
+
+app.MapMetrics();
 
 app.MapGet("/",
     () =>
