@@ -1,10 +1,16 @@
 using Prometheus;
+using Zammek.Metrics;
 using Zammek.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
+
+builder.Services
+    .AddSingleton<IMetricFactory>(Metrics.DefaultFactory)
+    .AddSingleton<MetricsSet>();
+
 
 var app = builder.Build();
 
