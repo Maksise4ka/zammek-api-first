@@ -45,7 +45,7 @@ ServerReflectionInfo:
 ![image](docs/grafana.png)
 
 ## Логи (ЛР 4)
-Используемые стек: Grafana + Loki
+Используемые стек: Grafana + Loki \
 Созданы следующие запросы:
 1. Изменения процентной ставки по кредитам
 ![image](docs/logs/loan_changes.png)
