@@ -1,4 +1,6 @@
 using Prometheus;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 using Zammek.Jobs;
 using Zammek.Metrics;
 using Zammek.Services;
@@ -11,6 +13,31 @@ builder.Services.AddGrpcReflection();
 builder.Services
     .AddSingleton<IMetricFactory>(Metrics.DefaultFactory)
     .AddSingleton<MetricsSet>();
+
+var lokiUrl = builder.Configuration["Loki:Url"] ?? throw new InvalidOperationException("Loki:Url is not set");
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .MinimumLevel.Information()
+    .Enrich.WithEnvironmentName()
+    .Enrich.FromLogContext()
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+    )
+    .WriteTo.GrafanaLoki(
+        uri: lokiUrl,
+        labels: new List<LokiLabel>
+        {
+            new() { Key = "app", Value = "aspnet-app" },
+            new() { Key = "service", Value = "zammek" },
+            new() { Key = "env", Value = builder.Environment.EnvironmentName.ToLower() }
+        },
+        propertiesAsLabels: ["level", "service", "Environment"],
+        credentials: null
+    )
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 
 builder.Services.AddHostedService<LoanExporterJob>();
 
