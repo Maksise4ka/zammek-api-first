@@ -1,3 +1,6 @@
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Prometheus;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
@@ -5,6 +8,7 @@ using Zammek.Jobs;
 using Zammek.Metrics;
 using Zammek.Services;
 
+const string serviceName = "zammek";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
@@ -28,7 +32,7 @@ Log.Logger = new LoggerConfiguration()
         labels: new List<LokiLabel>
         {
             new() { Key = "app", Value = "aspnet-app" },
-            new() { Key = "service", Value = "zammek" },
+            new() { Key = "service", Value = serviceName },
             new() { Key = "env", Value = builder.Environment.EnvironmentName.ToLower() }
         },
         propertiesAsLabels: ["level", "service", "Environment"],
@@ -37,6 +41,18 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddSource(serviceName)
+        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddService(serviceName: serviceName, serviceVersion: "lab4"))
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter(options => { options.Endpoint = new Uri("http://localhost:4317"); }))
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter());
 
 
 builder.Services.AddHostedService<LoanExporterJob>();
