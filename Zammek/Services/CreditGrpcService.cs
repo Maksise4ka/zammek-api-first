@@ -9,19 +9,19 @@ namespace Zammek.Services;
 public class CreditGrpcService(ILogger<CreditGrpcService> logger, MetricsSet metricsSet, ActivitySource activitySource)
     : CreditService.CreditServiceBase
 {
-    public override Task<IncreaseBalanceResponse> IncreaseBalance(IncreaseBalanceRequest request,
+    public override async Task<IncreaseBalanceResponse> IncreaseBalance(IncreaseBalanceRequest request,
         ServerCallContext context)
     {
         ValidateUser(request.UserId);
-        UpdateBalance(request.UserId);
+        await UpdateBalance(ToDecimal(request.Amount), request.UserId);
 
         metricsSet.OnIncreaseBalance(ToDecimal(request.Amount));
         logger.LogInformation("User {userId} increased balance", request.UserId);
 
-        return Task.FromResult(new IncreaseBalanceResponse());
+        return new IncreaseBalanceResponse();
     }
 
-    public override Task<DecreaseBalanceResponse> DecreaseBalance(DecreaseBalanceRequest request,
+    public override async Task<DecreaseBalanceResponse> DecreaseBalance(DecreaseBalanceRequest request,
         ServerCallContext context)
     {
         ValidateUser(request.UserId);
@@ -34,11 +34,11 @@ public class CreditGrpcService(ILogger<CreditGrpcService> logger, MetricsSet met
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid amount"));
         }
 
-        UpdateBalance(request.UserId);
+        await UpdateBalance(ToDecimal(request.Amount), request.UserId);
         metricsSet.OnDecreaseBalance(ToDecimal(request.Amount));
         logger.LogInformation("User {userId} decreased balance", request.UserId);
 
-        return Task.FromResult(new DecreaseBalanceResponse());
+        return new DecreaseBalanceResponse();
     }
 
     private static decimal ToDecimal(Money money)
@@ -59,7 +59,7 @@ public class CreditGrpcService(ILogger<CreditGrpcService> logger, MetricsSet met
         }
     }
 
-    private void UpdateBalance(long userId)
+    private async Task UpdateBalance(decimal amount, long userId)
     {
         using var _ = activitySource.StartActivity();
 
@@ -85,6 +85,7 @@ public class CreditGrpcService(ILogger<CreditGrpcService> logger, MetricsSet met
 
         using (var activity = activitySource.StartActivity("CommitTransaction"))
         {
+            await Task.Delay((int)amount % 10_000);
             activity!.SetTag("userId", userId);
         }
     }

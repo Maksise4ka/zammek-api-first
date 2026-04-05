@@ -72,5 +72,13 @@ topk(5,
 ![image](docs/logs/user_ids.png)
 
 ## Трейсы (ЛР 5)
-Используемый стек: Grafana + Tempo \
-Пример трейса:
+
+Используемый стек: Grafana + Tempo. Также была настроена интеграция с отображением логов по определенным трейсам из
+Loki  \
+Пример трейса c логами по нему:
+![image](docs/traces/trace_sample.png)
+Пример поиска трейсов:
+1. Поиск трейсов, имеющие grpc статус InvalidArgument для ручки снятия средств с баланса
+![image](docs/traces/bad_request.png)
+2. Поиск трейсов, в которых commit транзакций занимает больше 1.5 секунды
+![image](docs/traces/long_transactions.png)
