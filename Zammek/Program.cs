@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
+using Zammek;
 using Zammek.Jobs;
 using Zammek.Metrics;
 using Zammek.Services;
@@ -24,6 +26,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .Enrich.WithEnvironmentName()
     .Enrich.FromLogContext()
+    .Enrich.With<TraceEnricher>()
     .WriteTo.Console(
         outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
     )
@@ -42,6 +45,8 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+
+var otlpUrl = builder.Configuration["Tempo:Url"] ?? throw new InvalidOperationException("Tempo:Url is not set");
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddSource(serviceName)
@@ -49,11 +54,12 @@ builder.Services.AddOpenTelemetry()
             .AddService(serviceName: serviceName, serviceVersion: "lab4"))
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddOtlpExporter(options => { options.Endpoint = new Uri("http://localhost:4317"); }))
+        .AddOtlpExporter(options => { options.Endpoint = new Uri(otlpUrl); }))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddOtlpExporter());
 
+builder.Services.AddSingleton(new ActivitySource(serviceName));
 
 builder.Services.AddHostedService<LoanExporterJob>();
 
