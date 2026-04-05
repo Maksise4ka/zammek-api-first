@@ -20,3 +20,11 @@ datasources:
         - name: "traceID"
           matcherRegex: "traceID=([a-f0-9]+)"
           url: "http://localhost:3000/explore?orgId=1&left=%7B%22datasource%22:%22Loki%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22{exporter=\\\"ASP.NET\\\"}%20|~%20%22$__value%22%22%7D%5D%7D"
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+#      orgId: 1
+    url: http://tempo:3200
+    version: 1
+    editable: false

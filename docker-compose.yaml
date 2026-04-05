@@ -15,7 +15,7 @@ services:
       - '--web.enable-lifecycle'
     restart: unless-stopped
     networks:
-     - monitoring
+      - monitoring
 
   grafana:
     image: grafana/grafana:latest
@@ -45,10 +45,24 @@ services:
     networks:
       - monitoring
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready" ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  tempo:
+    image: grafana/tempo:2.6.1
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "3200:3200"
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+    command:
+      - "-config.file=/etc/tempo.yaml"
+    networks:
+      - monitoring
 
 networks:
   monitoring:
@@ -60,4 +74,6 @@ volumes:
   grafana-data:
     driver: local
   loki-data:
+    driver: local
+  tempo-data:
     driver: local
