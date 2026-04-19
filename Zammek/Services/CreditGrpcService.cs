@@ -50,12 +50,12 @@ public class CreditGrpcService(ILogger<CreditGrpcService> logger, IMetricsSet me
 
         using (var activity = activitySource.StartActivity("Sql.GetUserById"))
         {
-            activity!.SetTag("userId", userId);
+            activity?.SetTag("userId", userId);
         }
 
         using (var activity = activitySource.StartActivity("Sql.GetCreditsByUserId"))
         {
-            activity!.SetTag("userId", userId);
+            activity?.SetTag("userId", userId);
         }
     }
 
@@ -65,28 +65,28 @@ public class CreditGrpcService(ILogger<CreditGrpcService> logger, IMetricsSet me
 
         using (var activity = activitySource.StartActivity("CreateTransaction"))
         {
-            activity!.SetTag("userId", userId);
+            activity?.SetTag("userId", userId);
         }
 
         using (var activity = activitySource.StartActivity("Sql.UpdateUserBalance"))
         {
-            activity!.SetTag("userId", userId);
+            activity?.SetTag("userId", userId);
         }
 
         using (var activity = activitySource.StartActivity("Sql.CreatePayment"))
         {
-            activity!.SetTag("paymentId", Guid.NewGuid());
+            activity?.SetTag("paymentId", Guid.NewGuid());
         }
 
         using (var activity = activitySource.StartActivity("Sql.PublishOutbox"))
         {
-            activity!.SetTag("paymentId", Guid.NewGuid());
+            activity?.SetTag("paymentId", Guid.NewGuid());
         }
 
         using (var activity = activitySource.StartActivity("CommitTransaction"))
         {
             await Task.Delay((int)amount % 10_000);
-            activity!.SetTag("userId", userId);
+            activity?.SetTag("userId", userId);
         }
     }
 }

@@ -8,6 +8,6 @@ public class DebtGrpcService(ILogger<DebtGrpcService> logger) : DebtService.Debt
     public override Task<BuyDebtResponse> BuyDebt(BuyDebtRequest request, ServerCallContext context)
     {
         logger.LogInformation("User {UserId} bought debt with Id {DebtId}", request.UserId, request.DebtId);
-        return base.BuyDebt(request, context);
+        return Task.FromResult(new BuyDebtResponse());
     }
 }
