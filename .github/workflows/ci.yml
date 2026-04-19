@@ -66,7 +66,7 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
-    needs: build
+    needs: tests
     
     steps:
     - name: Checkout code
@@ -89,10 +89,9 @@ jobs:
       run: |
         dotnet test --no-build --verbosity minimal \
         --collect:"XPlat Code Coverage" \
-        --dataCollectors:Id=coverlet.collector \
-        /p:CollectCoverage=true \
-        /p:CoverletOutputFormat=cobertura \
-        /p:CoverletOutput=./coverage/
+        -p:CollectCoverage=true \
+        -p:CoverletOutputFormat=cobertura \
+        -p:CoverletOutput=./coverage/
         
     - name: Upload coverage reports
       uses: actions/upload-artifact@v4
