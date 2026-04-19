@@ -8,7 +8,6 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:
@@ -85,39 +84,18 @@ jobs:
       with:
         name: build-output
         
+    - name: Build
+      run: dotnet build --no-restore --verbosity minimal
+        
     - name: Test with Coverage
       run: |
-        dotnet test --no-build --verbosity minimal \
-        --collect:"XPlat Code Coverage" \
-        -p:CollectCoverage=true \
-        -p:CoverletOutputFormat=cobertura \
-        -p:CoverletOutput=./coverage/
+        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[Zammek.Tests]*" /p:Threshold=40 /p:ThresholdType=line /p:ThresholdStat=total "/p:ExcludeByFile=**/Protos/**/*.cs"
         
     - name: Upload coverage reports
       uses: actions/upload-artifact@v5
       with:
         name: coverage-report
-        path: coverage/
-        
-    - name: Check Coverage Threshold
-      run: |
-        # Parse coverage from cobertura XML using awk (works on both macOS and Linux)
-        total_lines=$(awk -F'line num="' '{split($2,a,"\""); if(a[1] ~ /^[0-9]+$/) count++} END {print+count}' ./coverage/coverage.cobertura.xml)
-        covered_lines=$(awk -F'line num="' '{split($2,a,"\""); split(a[2],b,"\""); if(b[1] ~ /^[0-9]+$/ && b[2] ~ /hits="[1-9]/) count++} END {print+count}' ./coverage/coverage.cobertura.xml)
-        
-        if [ "$total_lines" -eq 0 ]; then
-          echo "No lines found in coverage report"
-          exit 1
-        fi
-        
-        percentage=$((covered_lines * 100 / total_lines))
-        echo "Coverage: $percentage% ($covered_lines/$total_lines lines)"
-        
-        if [ "$percentage" -lt 40 ]; then
-          echo "Coverage is below 40% threshold"
-          exit 1
-        fi
-        echo "Coverage check passed"
+        path: Zammek.Tests/coverage/
 
   analyze:
     name: Analyze
