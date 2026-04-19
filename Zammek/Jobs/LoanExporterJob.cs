@@ -2,7 +2,7 @@ using Zammek.Metrics;
 
 namespace Zammek.Jobs;
 
-public class LoanExporterJob(MetricsSet metricsSet, ILogger<LoanExporterJob> logger) : BackgroundService
+public partial class LoanExporterJob(IMetricsSet metricsSet, ILogger<LoanExporterJob> logger) : BackgroundService
 {
     private const int MinLoan = 20;
     private const int MaxLoan = 32;
@@ -19,9 +19,12 @@ public class LoanExporterJob(MetricsSet metricsSet, ILogger<LoanExporterJob> log
             _currentValue = Math.Clamp(_currentValue, MinLoan, MaxLoan);
 
             metricsSet.SetLoanPercent(_currentValue);
-            logger.LogInformation("Loan percent set to: {CurrentLoan} (change: {Change})", _currentValue, change);
+            LogLoanChange(logger, _currentValue, change);
 
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
+
+    [LoggerMessage(LogLevel.Information, "Loan percent set to: {CurrentLoan} (change: {Change})")]
+    static partial void LogLoanChange(ILogger<LoanExporterJob> logger, int currentLoan, int change);
 }

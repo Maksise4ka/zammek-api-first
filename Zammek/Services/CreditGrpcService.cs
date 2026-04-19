@@ -6,7 +6,7 @@ using Zammek.Metrics;
 
 namespace Zammek.Services;
 
-public class CreditGrpcService(ILogger<CreditGrpcService> logger, MetricsSet metricsSet, ActivitySource activitySource)
+public class CreditGrpcService(ILogger<CreditGrpcService> logger, IMetricsSet metricsSet, ActivitySource activitySource)
     : CreditService.CreditServiceBase
 {
     public override async Task<IncreaseBalanceResponse> IncreaseBalance(IncreaseBalanceRequest request,

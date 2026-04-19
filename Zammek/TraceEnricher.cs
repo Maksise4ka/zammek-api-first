@@ -1,9 +1,11 @@
 using Serilog.Core;
 using Serilog.Events;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Zammek;
 
+[ExcludeFromCodeCoverage(Justification = "Инфраструктрная настройка")]
 public class TraceEnricher : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)

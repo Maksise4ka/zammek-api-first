@@ -2,7 +2,8 @@ using Prometheus;
 
 namespace Zammek.Metrics;
 
-public class MetricsSet(IMetricFactory metricFactory)
+[ExcludeFromDescription]
+internal class MetricsSet(IMetricFactory metricFactory) : IMetricsSet
 {
     private readonly Histogram _balanceChange =
         metricFactory.CreateHistogram(

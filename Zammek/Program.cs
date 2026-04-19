@@ -18,7 +18,7 @@ builder.Services.AddGrpcReflection();
 
 builder.Services
     .AddSingleton<IMetricFactory>(Metrics.DefaultFactory)
-    .AddSingleton<MetricsSet>();
+    .AddSingleton<IMetricsSet, MetricsSet>();
 
 var lokiUrl = builder.Configuration["Loki:Url"] ?? throw new InvalidOperationException("Loki:Url is not set");
 Log.Logger = new LoggerConfiguration()
