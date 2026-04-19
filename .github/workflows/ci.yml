@@ -101,10 +101,19 @@ jobs:
         
     - name: Check Coverage Threshold
       run: |
-        dotnet tool install --global dotnet-coverage || true
-        coverage=$(dotnet-coverage report ./coverage/coverage.cobertura.xml --threshold 40 --thresholdType line 2>&1 || true)
-        echo "$coverage"
-        if echo "$coverage" | grep -q "Failed"; then
+        # Parse coverage from cobertura XML using awk (works on both macOS and Linux)
+        total_lines=$(awk -F'line num="' '{split($2,a,"\""); if(a[1] ~ /^[0-9]+$/) count++} END {print+count}' ./coverage/coverage.cobertura.xml)
+        covered_lines=$(awk -F'line num="' '{split($2,a,"\""); split(a[2],b,"\""); if(b[1] ~ /^[0-9]+$/ && b[2] ~ /hits="[1-9]/) count++} END {print+count}' ./coverage/coverage.cobertura.xml)
+        
+        if [ "$total_lines" -eq 0 ]; then
+          echo "No lines found in coverage report"
+          exit 1
+        fi
+        
+        percentage=$((covered_lines * 100 / total_lines))
+        echo "Coverage: $percentage% ($covered_lines/$total_lines lines)"
+        
+        if [ "$percentage" -lt 40 ]; then
           echo "Coverage is below 40% threshold"
           exit 1
         fi
