@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v5
       
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
@@ -30,7 +30,7 @@ jobs:
       run: dotnet build --no-restore --verbosity minimal
       
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: build-output
         path: |
@@ -47,7 +47,7 @@ jobs:
       uses: actions/checkout@v5
       
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
@@ -55,7 +55,7 @@ jobs:
       run: dotnet restore
       
     - name: Download build artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: build-output
         
@@ -90,12 +90,7 @@ jobs:
     - name: Test with Coverage
       run: |
         dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[Zammek.Tests]*" /p:Threshold=40 /p:ThresholdType=line /p:ThresholdStat=total "/p:ExcludeByFile=**/Protos/**/*.cs"
-        
-    - name: Upload coverage reports
-      uses: actions/upload-artifact@v5
-      with:
-        name: coverage-report
-        path: Zammek.Tests/coverage/
+
 
   analyze:
     name: Analyze
