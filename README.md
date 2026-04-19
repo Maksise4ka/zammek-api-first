@@ -4,7 +4,8 @@
 1. [Артефакты API](#артефакты-api-лр2)
 2. [Метрики ЛР 3](#метрики-лр-3)
 3. [Логи ЛР 4](#логи-лр-4)
-3. [Трейсы ЛР 5](#трейсы-лр-5)
+4. [Трейсы ЛР 5](#трейсы-лр-5)
+5. [CI/CD ЛР 6](#cicd-лр-6)
 
 API для микрокредитной организации, занимающейся продажей долгов на собственной бирже.
 
@@ -82,3 +83,10 @@ Loki  \
 ![image](docs/traces/bad_request.png)
 2. Поиск трейсов, в которых commit транзакций занимает больше 1.5 секунды
 ![image](docs/traces/long_transactions.png)
+
+## CI/CD (ЛР 6)
+Добавлено 4 джобы:
+1. Build - сборка проекта
+2. Tests - запуск тестов (пока их 6 штук). Пример [запуска](https://github.com/Maksise4ka/zammek-api-first/actions/runs/24638175870/job/72037289471#step:6:23)
+3. Analyze - проверка code quality ошибок. Пример [ошибки](https://github.com/Maksise4ka/zammek-api-first/actions/runs/24636236666#:~:text=exit%20code%201.-,Analyze%3A%20Zammek/Services/UserGrpcService.cs%23L6,-Parameter%20%27logger%27%20is)
+4. Coverage - процент покрытия тестами. Джоба падает если процент < 40%. Пример [отчета](https://github.com/Maksise4ka/zammek-api-first/actions/runs/24638175870/job/72037313605#step:7:24)
