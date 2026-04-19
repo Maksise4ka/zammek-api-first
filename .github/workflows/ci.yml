@@ -45,7 +45,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -56,7 +56,7 @@ jobs:
       run: dotnet restore
       
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: build-output
         
@@ -70,7 +70,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -81,7 +81,7 @@ jobs:
       run: dotnet restore
       
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: build-output
         
@@ -94,7 +94,7 @@ jobs:
         -p:CoverletOutput=./coverage/
         
     - name: Upload coverage reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: coverage-report
         path: coverage/
@@ -126,7 +126,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
