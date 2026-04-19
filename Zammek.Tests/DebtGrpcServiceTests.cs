@@ -26,7 +26,7 @@ public class DebtGrpcServiceTests
             UserId = 1,
             DebtId = 1
         };
-        
+
         _logger.Setup(l => l.Log(
             It.IsAny<LogLevel>(),
             It.IsAny<EventId>(),
