@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Zammek.Tests/Zammek.Tests.csproj" />
   <Project Path="Zammek/Zammek.csproj" />
 </Solution>

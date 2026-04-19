@@ -1,0 +1,140 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore --verbosity minimal
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: |
+          Zammek/bin/
+          Zammek.Tests/bin/
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        
+    - name: Test
+      run: dotnet test --no-build --verbosity minimal --logger "console;verbosity=detailed"
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        
+    - name: Test with Coverage
+      run: |
+        dotnet test --no-build --verbosity minimal \
+        --collect:"XPlat Code Coverage" \
+        --dataCollectors:Id=coverlet.collector \
+        /p:CollectCoverage=true \
+        /p:CoverletOutputFormat=cobertura \
+        /p:CoverletOutput=./coverage/
+        
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+        
+    - name: Check Coverage Threshold
+      run: |
+        dotnet tool install --global dotnet-coverage || true
+        coverage=$(dotnet-coverage report ./coverage/coverage.cobertura.xml --threshold 40 --thresholdType line 2>&1 || true)
+        echo "$coverage"
+        if echo "$coverage" | grep -q "Failed"; then
+          echo "Coverage is below 40% threshold"
+          exit 1
+        fi
+        echo "Coverage check passed"
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Check code formatting
+      run: dotnet format --verify-no-changes --verbosity diagnostic
+      
+    - name: Build with warnings as errors
+      run: |
+        dotnet build --no-restore -warnaserror --verbosity minimal 2>&1 | tee build.log
+        if grep -q "error CS" build.log; then
+          echo "Build contains errors"
+          exit 1
+        fi
+        echo "Code quality check passed"
